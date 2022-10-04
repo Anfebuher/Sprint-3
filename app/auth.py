@@ -25,24 +25,23 @@ def activate():
         if g.user:
             return redirect(url_for('inbox.show'))
         
-        if request.method == 'POST': 
+        if request.method == 'GET': 
             number = request.args['auth'] 
-            
+            print(number)
             db = get_db()
             attempt = db.execute(
-                'SELECT id FROM activationlink WHERE challenge=? and state=?', (number, utils.U_UNCONFIRMED)
-            ).fetchone()
-
+                'SELECT * FROM activationlink WHERE challenge = ? and state = ?', (number, utils.U_UNCONFIRMED,)).fetchone()
+            print(attempt['id'])
             if attempt is not None:
                 db.execute(
-                    'UPDATE activationlink SET state=? WHERE id=?', (utils.U_CONFIRMED, attempt['id'])
+                    'UPDATE activationlink SET state=? WHERE id = ?', (utils.U_CONFIRMED, attempt['id'])
                 )
                 db.execute(
-                    'INSERT INTO user (username, password, salt, email) VALUES (?, ?, ?, ?, ?)', (attempt['username'], attempt['password'], attempt['salt'], attempt['email'])
+                    'INSERT INTO user (username, password, salt, email) VALUES (?, ?, ?, ?)', (attempt['username'], attempt['password'], attempt['salt'], attempt['email'])
                 )
                 db.commit()
 
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.register'))
     except Exception as e:
         print(e)
         return redirect(url_for('auth.login'))
@@ -78,7 +77,7 @@ def register():
                 flash(error)
                 return render_template('auth/register.html')           
 
-            if db.execute('SELECT id FROM user WHERE username = ?', (username)).fetchone() is not None:
+            if db.execute('SELECT id FROM user WHERE username = ?', (username,)).fetchone() is not None:
                 error = 'User {} is already registered.'.format(username)
                 flash(error)
                 return render_template('auth/register.html')
@@ -177,7 +176,7 @@ def confirm():
                 flash('Invalid')
                 return render_template('auth/forgot.html')
 
-        return render_template('auth/change.html')
+        return render_template('auth/forgot.html')
     except:
         return render_template('auth/forgot.html')
 
@@ -227,7 +226,7 @@ def forgot():
                 number = hex(random.getrandbits(512))[2:]
                 
                 db.execute(
-                    'DELETE FROM forgotlink WHERE state=? and userid=?',
+                    'UPDATE forgotlink SET state=? WHERE userid=?',
                     (utils.F_INACTIVE, user['id'])
                 )
                 db.execute(
@@ -305,7 +304,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            'SELECT * FROM user WHERE username = ?', (user_id,)
+            'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
         

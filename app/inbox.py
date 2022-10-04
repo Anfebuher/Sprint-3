@@ -18,7 +18,7 @@ def getDB():
 def show():
     db = get_db()
     messages = db.execute(
-        'SELECT * FROM message WHERE to_id=?', (g.user['id'])
+        'SELECT * FROM message WHERE to_id = ?', (g.user['id'],)
     ).fetchall()
 
     return render_template('inbox/show.html', messages=messages)
@@ -29,8 +29,9 @@ def show():
 def send():
     if request.method == 'POST':        
         from_id = g.user['id']
+        print(from_id)
         to_username = request.form['to']
-        subject = request.form['subjetc']
+        subject = request.form['subject']
         body = request.form['body']
 
         db = get_db()
@@ -51,12 +52,12 @@ def send():
         userto = None 
         
         userto = db.execute(
-            'SELECT id FROM user WHERE username=?', (to_username,)
+            'SELECT id FROM user WHERE username = ?', (to_username,)
         ).fetchone()
         
         if userto is None:
             error = 'Recipient does not exist'
-     
+        print(userto)
         if error is not None:
             flash(error)
         else:
