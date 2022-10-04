@@ -158,17 +158,17 @@ def confirm():
 
             db = get_db()
             attempt = db.execute(
-                'SELECT id FROM forgotlink WHERE challenge=? and state=?', (authid, utils.F_ACTIVE)
+                'SELECT * FROM forgotlink WHERE challenge = ? and state = ?', (authid, utils.F_ACTIVE)
             ).fetchone()
             
             if attempt is not None:
                 db.execute(
-                    'UPDATE forgotlink SET state=? WHERE id=?', (utils.F_INACTIVE, attempt['id'])
+                    'UPDATE forgotlink SET state = ? WHERE id = ?', (utils.F_INACTIVE, attempt['id'])
                 )
                 salt = hex(random.getrandbits(128))[2:]
                 hashP = generate_password_hash(password + salt)   
                 db.execute(
-                    'UPDATE user SET password=?, salt=? WHERE id=?', (hashP, salt, attempt['userid'])
+                    'UPDATE user SET password = ?, salt = ? WHERE id = ?', (hashP, salt, attempt['userid'])
                 )
                 db.commit()
                 return redirect(url_for('auth.login'))
@@ -187,12 +187,12 @@ def change():
         if g.user:
             return redirect(url_for('inbox.show'))
         
-        if request.method == 'POST': 
-            number = request.args['auth'] 
+        if request.method == 'GET':
+            number = request.args['auth']
             
             db = get_db()
             attempt = db.execute(
-                'SELECT id FROM forgotlink WHERE challenge=? and state=?', (number, utils.F_ACTIVE)
+                'SELECT id FROM forgotlink WHERE challenge = ? and state = ?', (number, utils.F_ACTIVE)
             ).fetchone()
             
             if attempt is not None:
@@ -219,18 +219,18 @@ def forgot():
 
             db = get_db()
             user = db.execute(
-                'SELECT id FORM user WHERE email=?', (email,)
+                'SELECT id FROM user WHERE email = ?', (email,)
             ).fetchone()
 
             if user is not None:
                 number = hex(random.getrandbits(512))[2:]
                 
                 db.execute(
-                    'UPDATE forgotlink SET state=? WHERE userid=?',
+                    'UPDATE forgotlink SET state = ? WHERE userid = ?',
                     (utils.F_INACTIVE, user['id'])
                 )
                 db.execute(
-                    'INSERT INTO forgotlink (userid, challenge, state) VALUES (?, ?, ?) ',
+                    'INSERT INTO forgotlink (userid, challenge, state) VALUES (?, ?, ?)',
                     (user['id'], number, utils.F_ACTIVE)
                 )
                 db.commit()

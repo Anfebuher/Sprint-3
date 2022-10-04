@@ -54,6 +54,10 @@ def send():
         userto = db.execute(
             'SELECT id FROM user WHERE username = ?', (to_username,)
         ).fetchone()
+
+        from_user = db.execute(
+            'SELECT username FROM user WHERE id = ?', (from_id,)
+        ).fetchone()
         
         if userto is None:
             error = 'Recipient does not exist'
@@ -63,8 +67,8 @@ def send():
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO message (from_id, to_id, subject, body) VALUES (?, ?, ?, ?)',
-                (g.user['id'], userto['id'], subject, body)
+                'INSERT INTO message (from_id, to_id, from_user, subject, body) VALUES (?, ?, ?, ?, ?)',
+                (g.user['id'], userto['id'], from_user['username'], subject, body)
             )
             db.commit()
 
