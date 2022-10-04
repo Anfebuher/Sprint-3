@@ -27,14 +27,14 @@ def activate():
         
         if request.method == 'GET': 
             number = request.args['auth'] 
-            print(number)
+
             db = get_db()
             attempt = db.execute(
                 'SELECT * FROM activationlink WHERE challenge = ? and state = ?', (number, utils.U_UNCONFIRMED,)).fetchone()
-            print(attempt['id'])
+
             if attempt is not None:
                 db.execute(
-                    'UPDATE activationlink SET state=? WHERE id = ?', (utils.U_CONFIRMED, attempt['id'])
+                    'UPDATE activationlink SET state = ? WHERE id = ?', (utils.U_CONFIRMED, attempt['id'])
                 )
                 db.execute(
                     'INSERT INTO user (username, password, salt, email) VALUES (?, ?, ?, ?)', (attempt['username'], attempt['password'], attempt['salt'], attempt['email'])
