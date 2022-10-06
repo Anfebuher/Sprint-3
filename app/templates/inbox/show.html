@@ -1,24 +1,42 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h2 class="text-slate-700 my-2">{% block title %}Messages{% endblock %}</h2>
+  <h2 class="text-slate-900 text-lg font-bold mb-4">{% block title %}Mensajes recibidos{% endblock %}</h2>
   {% if g.user %}
-    <div class="flex justify-end">
-      <a class="action" href="{{ url_for('inbox.send') }}">New</a>
-      <a class="action" href="{{ url_for('inbox.getDB') }}">get DB</a>
+    <div class="flex justify-end my-3">
+      <a class="flex items-center bg-blue-600 text-sm text-white rounded cursor-pointer p-1 pr-2 m-1 hover:bg-blue-700" href="{{ url_for('inbox.send') }}"><span class="material-symbols-outlined">
+        add
+        </span>Nuevo mensaje</a>
+      <a class="flex items-center text-black rounded cursor-pointer p-1 m-1 hover:bg-blue-600 hover:text-white" href="{{ url_for('inbox.getDB') }}"><span class="material-symbols-outlined">
+        file_download
+        </span></a>
     </div>
   {% endif %}
 {% endblock %}
 
 {% block content %}
   {% for message in messages %}
-    <article class="post mx-4 mb-3 pl-2 border-l-4 border-slate-700">
+    <article class="flex flex-col mx-4 mb-4 pl-2 border-l-4 border-sky-500">
       <header>
         <div>
-          <h3 class="text-lg">{{ message['subject'] }} from {{ message['from_user'] }} on {{ message['created'].strftime('%Y-%m-%d') }}</h3>
+          <h3 class="text-lg font-bold text-slate-800">{{ message['subject'] }}</h3>
+        </div>
+        <div>
+          <h2 class="text-sm text-slate-700">De {{ message['from_user'] }} el {{ message['created'].strftime('%d %b, %Y') }} a las {{ message['created'].strftime('%I:%M %p') }} </h2>
         </div>
       </header>
-      <p class="body text-slate-600">{{ message['body'] }}</p>
+      <div class="flex flex-row place-content-between place-items-center">
+        <div class="mb-3">
+          <p class="body text-slate-800 text-base">{{ message['body'] }}</p>
+        </div>
+        <div>
+          <a href="inbox/delete/{{message['id']}}" class="flex place-items-center bg-red-600 text-white text-sm rounded-md cursor-pointer p-1 my-2 hover:bg-red-700">
+            <span class="material-symbols-outlined">
+            delete
+            </span>
+          </a>
+        </div>
+      </div>
     </article>
   {% endfor %}
 {% endblock %}

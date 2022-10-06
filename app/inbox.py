@@ -74,3 +74,19 @@ def send():
             return redirect(url_for('inbox.show'))
 
     return render_template('inbox/send.html')
+
+
+@bp.route('inbox/delete/<id>', methods = ('GET', 'POST'))
+@login_required
+def delete(id):
+
+    messageid = id
+    db = get_db()
+    db.execute(
+            'DELETE FROM message WHERE id = ?', [messageid]
+        )
+    db.commit()
+
+    flash('Mensaje eliminado')
+
+    return redirect(url_for('inbox.show'))

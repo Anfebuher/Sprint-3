@@ -40,7 +40,7 @@ def activate():
                 )
                 db.commit()
 
-        return redirect(url_for('auth.register'))
+        return redirect(url_for('auth.login'))
     except Exception as e:
         print(e)
         return redirect(url_for('auth.login'))
@@ -77,22 +77,22 @@ def register():
                 return render_template('auth/register.html')           
 
             if db.execute('SELECT id FROM user WHERE username = ?', (username,)).fetchone() is not None:
-                error = 'User {} is already registered.'.format(username)
+                error = 'El usuario {} ya está registrado.'.format(username)
                 flash(error)
                 return render_template('auth/register.html')
 
             if (email is None or (not utils.isEmailValid(email))):
-                error =  'Email address invalid.'
+                error =  'Correo electrónico inválido.'
                 flash(error)
                 return render_template('auth/register.html')
             
             if db.execute('SELECT id FROM user WHERE email = ?', (email,)).fetchone() is not None:
-                error =  'Email {} is already registered.'.format(email)
+                error =  'El correo electrónico {} ya está registrado.'.format(email)
                 flash(error)
                 return render_template('auth/register.html')
             
             if (not utils.isPasswordValid(password)):
-                error = 'Password should contain at least a lowercase letter, an uppercase letter and a number with 8 characters long'
+                error = 'La contraseña debe contener al menos 8 caracteres de largo, una minúscula, una mayúscula y un número.'
                 flash(error)
                 return render_template('auth/register.html')
 
@@ -111,11 +111,11 @@ def register():
                 'SELECT user, password FROM credentials WHERE name=?', (utils.EMAIL_APP,)
             ).fetchone()
 
-            content = 'Hello there, to activate your account, please click on this link ' + flask.url_for('auth.activate', _external=True) + '?auth=' + number
+            content = 'Hola, para activar tu cuenta por favor haz click en este enlace ' + flask.url_for('auth.activate', _external=True) + '?auth=' + number
             
             send_email(credentials, receiver=email, subject='Activate your account', message=content)
             
-            flash('Please check in your registered email to activate your account')
+            flash('Por favor revisa tu correo electrónico registrado para activar tu cuenta')
             return render_template('auth/login.html') 
 
         return render_template('auth/register.html') 
@@ -147,11 +147,11 @@ def confirm():
                 return render_template('auth/change.html', number=authid)
 
             if password1 != password:
-                flash('Both values should be the same')
+                flash('Ambas contraseñas deben ser iguales')
                 return render_template('auth/change.html', number=authid)
 
             if not utils.isPasswordValid(password):
-                error = 'Password should contain at least a lowercase letter, an uppercase letter and a number with 8 characters long.'
+                error = 'La contraseña debe contener al menos 8 caracteres de largo, una minúscula, una mayúscula y un número.'
                 flash(error)
                 return render_template('auth/change.html', number=authid)
 
@@ -170,9 +170,10 @@ def confirm():
                     'UPDATE user SET password = ?, salt = ? WHERE id = ?', (hashP, salt, attempt['userid'])
                 )
                 db.commit()
+                flash('Contraseña actualizada')
                 return redirect(url_for('auth.login'))
             else:
-                flash('Invalid')
+                flash('Inválido')
                 return render_template('auth/forgot.html')
 
         return render_template('auth/forgot.html')
@@ -238,13 +239,13 @@ def forgot():
                     'SELECT user,password FROM credentials WHERE name=?',(utils.EMAIL_APP,)
                 ).fetchone()
                 
-                content = 'Hello there, to change your password, please click on this link ' + flask.url_for('auth.change', _external=True) + '?auth=' + number
+                content = 'Hola, para cambiar tu contraseña haz click en este enlace ' + flask.url_for('auth.change', _external=True) + '?auth=' + number
                 
                 send_email(credentials, receiver=email, subject='New Password', message=content)
                 
-                flash('Please check in your registered email')
+                flash('Por favor revisa tu correo electrónico')
             else:
-                error = 'Email is not registered'
+                error = 'Correo electrónico no registrado'
                 flash(error)            
 
         return render_template('auth/forgot.html')
@@ -279,9 +280,9 @@ def login():
             ).fetchone()
             
             if user is None:
-                error = 'Incorrect username or password'
+                error = 'Usuario o contraseña incorrectos'
             elif not check_password_hash(user['password'], password + user['salt']):
-                error = 'Incorrect username or password'   
+                error = 'Usuario o contraseña incorrectos'   
 
             if error is None:
                 session.clear()
