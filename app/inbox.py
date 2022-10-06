@@ -29,7 +29,6 @@ def show():
 def send():
     if request.method == 'POST':        
         from_id = g.user['id']
-        print(from_id)
         to_username = request.form['to']
         subject = request.form['subject']
         body = request.form['body']
@@ -61,7 +60,7 @@ def send():
         
         if userto is None:
             error = 'Recipient does not exist'
-        print(userto)
+
         if error is not None:
             flash(error)
         else:
