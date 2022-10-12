@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from curses.ascii import NUL
 from distutils.command.clean import clean
 import functools
